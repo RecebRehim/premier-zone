@@ -1,6 +1,6 @@
 # Premier Zone
 
-Full-stack project: **Spring Boot** REST API + **PostgreSQL** + **React** UI, plus an optional **Python** notebook-style script for match prediction experiments (from the original PLWebsite repo).
+Full-stack project: **Spring Boot** REST API + **PostgreSQL** + **React** UI.
 
 ## Repository layout
 
