@@ -1,0 +1,9 @@
+$primary-color: #52B69A;
+
+@import 'animate.css';
+
+/* Font files are loaded from Google Fonts in public/index.html (the original repo pointed at a missing .ttf). */
+
+body {
+  font-family: 'Red Hat Display', sans-serif;
+}
