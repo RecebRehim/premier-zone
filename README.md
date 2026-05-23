@@ -1,80 +1,47 @@
 # Premier Zone
 
-Full-stack project: **Spring Boot** REST API + **PostgreSQL** + **React** UI.
+Web app to browse and filter Premier League–style player statistics (teams, nations, positions, search). **Spring Boot** API, **PostgreSQL**, **React** UI.
+
+## Stack
+
+- **Backend:** Java, Spring Boot, JPA, Maven  
+- **Database:** PostgreSQL  
+- **Frontend:** React (Create React App), SCSS, React Router  
 
 ## Repository layout
 
-| Folder | Role |
-|--------|------|
-| `premier-zone/` | Spring Boot backend (Maven). Exposes JSON at `/api/v1/player`. |
-| `Frontend/` | Create React App UI: browse teams, nations, positions, search players, view stats tables. |
+| Path | Purpose |
+|------|---------|
+| `premier-zone/` | REST API (`/api/v1/player`) |
+| `Frontend/` | Single-page UI |
 
-## Prerequisites
+## Run locally
 
-- **Java** and **Maven** (or use the included `mvnw` / `mvnw.cmd` in `premier-zone/`)
-- **Node.js** (LTS) and npm
-- **PostgreSQL** with a database (this project uses `prem_stats` in `application.properties` by default)
+1. **Database** — Create a PostgreSQL database and copy `premier-zone/src/main/resources/application.properties.example` to `application.properties`. Set URL, username, and password. Do not commit secrets.
 
-## Backend (Spring Boot)
+2. **API** — From `premier-zone/`:
 
-1. Create a PostgreSQL database and align `premier-zone/src/main/resources/application.properties` (see `application.properties.example` for a template without secrets).
-2. From the `premier-zone` folder:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
 
-```bash
-./mvnw spring-boot:run
-```
+   Windows: `.\mvnw.cmd spring-boot:run` — listens on **http://localhost:8080**.
 
-On Windows PowerShell:
+3. **UI** — From `Frontend/`:
 
-```powershell
-cd premier-zone
-.\mvnw.cmd spring-boot:run
-```
+   ```bash
+   npm install && npm start
+   ```
 
-The API listens on **port 8080** by default.
+   Opens **http://localhost:3000**. Dev requests to `/api` are proxied to port 8080 (see `Frontend/package.json`).
 
-### Database cleanup (spreadsheet “Squad Total” rows)
+## Production build
 
-If your `player_stats` table came from a sheet that included one **Squad Total** row per team, those rows have **no nation or position** and are not real players. Remove them once with:
-
-```powershell
-psql -h localhost -U postgres -d prem_stats -f premier-zone/db/cleanup_squad_totals.sql
-```
-
-(Prompts for password, or set `PGPASSWORD` in your environment for a local dev machine only.)
-
-The same script lives at `premier-zone/db/cleanup_squad_totals.sql` so you can re-run it after a bad re-import.
-
-### CORS and local development
-
-In development, the React app uses **same-origin** API URLs (see `Frontend/src/api.js`: base URL is empty unless you set `REACT_APP_API_URL`). **`package.json`** has `"proxy": "http://localhost:8080"`, so the Create React App dev server forwards `/api/...` to Spring. The browser only talks to **port 3000**, so **CORS does not apply** for those requests.
-
-If you call the API by full URL (`http://localhost:8080/...`) from the browser, `CorsConfig` and `@CrossOrigin` on `PlayerController` allow local origins. For production, set `REACT_APP_API_URL` to your deployed API and configure `app.cors.allowed-origins` to match your frontend origin.
-
-```properties
-app.cors.allowed-origins=http://localhost:3000,http://127.0.0.1:3000,https://your-production-domain.com
-```
-
-## Frontend (React)
-
-From the `Frontend` folder:
+Set the public API URL, then build static assets:
 
 ```bash
-npm install
-npm start
-```
-
-Optional: for a **production build** served from a different host than the API, set the API origin before `npm run build`:
-
-```bash
-set REACT_APP_API_URL=https://api.yourdomain.com
+export REACT_APP_API_URL=https://your-api.example.com   # Unix/macOS
 npm run build
 ```
 
-(Without `REACT_APP_API_URL`, the built app still requests `/api/...` on whatever host serves the static files — only correct if the API is on the **same** host/path, e.g. behind one reverse proxy.)
-
-On Unix: `export REACT_APP_API_URL=...`.
-
-## Security note for portfolios
-
-Do not commit real database passwords. Use `application.properties.example` as a template and keep secrets in local `application.properties` or environment-specific config that is gitignored.
+Configure `app.cors.allowed-origins` in `application.properties` to include your deployed frontend origin.
